@@ -5,7 +5,7 @@ const overlayController = require("../controllers/overlayController");
 const router = express.Router();
 
 router.post("/", authenticate, overlayController.create);
-router.patch("/:id", authenticate, overlayController.update);
+router.put("/:id", authenticate, overlayController.update);
 router.delete("/:id", authenticate, overlayController.deleteOverlay);
 router.get("/", overlayController.get);
 // router.post("/login", userController.login);

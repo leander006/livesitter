@@ -55,3 +55,19 @@ app.get("/", (req, res) => {
 httpServer.listen(PORT, async () => {
   console.log(`Backend runnig on port ${PORT}`);
 });
+
+//Socket //
+
+const io = new Server(httpServer, { cors: { origin: "*" } });
+io.on("connection", (socket) => {
+  socket.on("setup", (userData) => {
+    socket.join(userData?._id);
+  });
+
+  socket.on("send", () => {
+    console.log("got data from frontend");
+    socket.emit("get", "nice");
+  });
+});
+
+// end //

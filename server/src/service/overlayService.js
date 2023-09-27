@@ -34,7 +34,7 @@ const create = async (data, user) => {
 
 const getByUrl = async (data) => {
   try {
-    const overlay = await Overlay.find({ url: data.url });
+    const overlay = await Overlay.find({ url: data });
     if (!overlay) {
       throw {
         success: false,
@@ -46,7 +46,7 @@ const getByUrl = async (data) => {
     return {
       success: true,
       status: 201,
-      message: "Overlay created",
+      message: "Overlay fetched successfully",
       data: overlay,
     };
   } catch (error) {
@@ -65,6 +65,7 @@ const updateOverlays = async (data, id) => {
   const top = data.top;
   const content = data.content;
   const overlay = await Overlay.findById(id);
+  console.log("overlay", overlay);
   try {
     const newOverlay = await Overlay.findByIdAndUpdate(
       id,

@@ -16,10 +16,10 @@ const create = asyncHandler(async (req, res) => {
 
 const get = asyncHandler(async (req, res) => {
   try {
-    const data = await overlayService.getByUrl(req.body);
+    const data = await overlayService.getByUrl(req.query.url);
     return res
       .status(data.status)
-      .json({ sucess: data.success, message: data.message });
+      .json({ sucess: data.success, message: data.message, data: data.data });
   } catch (error) {
     return res
       .status(error.status)
