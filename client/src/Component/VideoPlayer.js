@@ -65,9 +65,9 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
       if (color !== "" && col === "Not_Valid") {
         return toast.error("Invalid color name");
       }
-      if ((newLeft || newTop) && (newLeft > 70 || newTop > 240)) {
+      if ((newLeft || newTop) && (newLeft > 70 || newTop > 180)) {
         return toast.error(
-          "Invalid position. Please make sure left value is less then 70 and top value is less then 240px"
+          "Invalid position. Please make sure left value is less then 70 and top value is less then 180px"
         );
       }
 
@@ -186,7 +186,7 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
             onSubmit={handleSubmit}
             className=" flex flex-col justify-center items-center space-y-2 mt-3 p-2 bg-gradient-to-r w-[240px] md:w-[500px] from-indigo-500 via-purple-500 to-pink-500"
           >
-            <h1 className="text-white">Enter overlay deatails</h1>
+            <h1 className="text-white">Enter overlay details</h1>
             <div className="flex flex-col md:flex-row md:justify-around items-center w-full space-y-2 md:space-y-0">
               <input
                 className="border p-1 rounded-md w-fit"

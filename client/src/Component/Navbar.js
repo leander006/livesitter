@@ -75,7 +75,7 @@ function Navbar() {
               {links.map(({ links, id, name }) => (
                 <li
                   key={id}
-                  className="py-6 mx-4 font-medium capitalize cursor-pointer hover:scale-125 duration-300"
+                  className="py-9 mx-4 font-medium capitalize cursor-pointer hover:scale-125 duration-300"
                 >
                   <Link
                     onClick={() => setNav(!nav)}
@@ -93,7 +93,7 @@ function Navbar() {
                   dispatch(logout);
                   navigate("/login");
                 }}
-                className="font-medium capitalize cursor-pointer hover:scale-125 duration-300"
+                className="py-9 font-medium capitalize cursor-pointer hover:scale-125 duration-300"
               >
                 Logout
               </li>
