@@ -6,7 +6,7 @@ const create = asyncHandler(async (req, res) => {
     const data = await overlayService.create(req.body, req.user);
     return res
       .status(data.status)
-      .json({ sucess: data.success, message: data.message });
+      .json({ sucess: data.success, message: data.message, data: data.data });
   } catch (error) {
     return res
       .status(error.status)
@@ -29,7 +29,11 @@ const get = asyncHandler(async (req, res) => {
 
 const update = asyncHandler(async (req, res) => {
   try {
-    const data = await overlayService.updateOverlays(req.body, req.params.id);
+    const data = await overlayService.updateOverlays(
+      req.body,
+      req.params.id,
+      req.user._id
+    );
     return res
       .status(data.status)
       .json({ sucess: data.success, message: data.message });
@@ -43,7 +47,10 @@ const update = asyncHandler(async (req, res) => {
 
 const deleteOverlay = asyncHandler(async (req, res) => {
   try {
-    const data = await overlayService.deleteOverlays(req.params.id);
+    const data = await overlayService.deleteOverlays(
+      req.params.id,
+      req.user._id
+    );
     return res
       .status(data.status)
       .json({ sucess: data.success, message: data.message });

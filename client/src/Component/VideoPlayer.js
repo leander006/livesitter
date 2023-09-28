@@ -91,6 +91,11 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
       if (error.response.data.message === "Unauthorized access no token") {
         toast.error("Please login again token expired");
       }
+      toast.error(
+        error?.response?.data?.message
+          ? error?.response?.data?.message
+          : "something went wrong"
+      );
     }
   };
 
@@ -124,6 +129,11 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
       if (error.response.data.message === "Unauthorized access no token") {
         toast.error("Please login again token expired");
       }
+      toast.error(
+        error?.response?.data?.message
+          ? error?.response?.data?.message
+          : "something went wrong"
+      );
     }
   };
 
@@ -137,6 +147,11 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
       if (error.message === "Unauthorized access no token") {
         toast.error("Please login again token expired");
       }
+      toast.error(
+        error?.response?.data?.message
+          ? error?.response?.data?.message
+          : "something went wrong"
+      );
     }
   };
   return (

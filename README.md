@@ -17,3 +17,9 @@ This project has two repo one client and second server
 
 - cd server
 - `npm dev`
+
+## To get rtsp url
+
+- `https://www.youtube.com/watch?v=qQeBapQAifs`
+- Watch above video to get your own url
+- If you don't have url then you can use our existing url to watch live stream

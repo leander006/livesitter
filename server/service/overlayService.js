@@ -16,11 +16,12 @@ const create = async (data, user) => {
       owner: user,
     });
 
-    await newOverlay.save();
+    const overlay = await newOverlay.save();
     return {
       success: true,
       status: 201,
       message: "Overlay created",
+      data: overlay,
     };
   } catch (error) {
     throw {
@@ -59,13 +60,21 @@ const getByUrl = async (data) => {
   }
 };
 
-const updateOverlays = async (data, id) => {
+const updateOverlays = async (data, id, userId) => {
   const color = data.color;
   const left = data.left;
   const top = data.top;
   const content = data.content;
   const overlay = await Overlay.findById(id);
-  console.log("overlay", overlay);
+  const owner = await Overlay.findOne({ owner: userId });
+  if (owner == null) {
+    throw {
+      success: false,
+      message: "You cannot edit others overlay",
+      status: 402,
+      data: {},
+    };
+  }
   try {
     const newOverlay = await Overlay.findByIdAndUpdate(
       id,
@@ -94,8 +103,17 @@ const updateOverlays = async (data, id) => {
   }
 };
 
-const deleteOverlays = async (id) => {
+const deleteOverlays = async (id, userId) => {
   try {
+    const owner = await Overlay.findOne({ owner: userId });
+    if (owner == null) {
+      throw {
+        success: false,
+        message: "You cannot delete others overlay",
+        status: 402,
+        data: {},
+      };
+    }
     const overlay = await Overlay.findByIdAndDelete(id);
     if (!overlay) {
       throw {
