@@ -4,7 +4,7 @@ const passport = require("passport");
 const { createServer } = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const { PORT, MONGO_URI, JWT_KEY } = require("./config/serverConfig");
+const { PORT, MONGO_URI, JWT_KEY, URL } = require("./config/serverConfig");
 const authRoute = require("./routes/authRoute");
 const overlayRoute = require("./routes/overlayRoute");
 const { passportAuth } = require("./config/authPassport");
@@ -49,7 +49,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/overlay", overlayRoute);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to server of Talkology");
+  res.send("Welcome to server of livesitter");
 });
 
 httpServer.listen(PORT, async () => {
