@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { BASE_URL } from "../utils/helper";
 import { loginError, loginStart, loginSuccess } from "../redux/Slice/userSlice";
 import axios from "axios";
+import toast from "react-hot-toast"
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -24,11 +25,16 @@ function Login() {
       navigate("/");
     } catch (err) {
       dispatch(loginError());
+      toast.error(
+        err?.response?.data?.message
+          ? err?.response?.data?.message
+          : "something went wrong"
+      );
       console.log(err?.response?.data?.message);
     }
   };
   return (
-    <div className="w-full h-screen flex bg-[#001F3F]">
+    <div className="w-full h-screen flex">
       <div className="grid grid-cols-1 md:grid-cols-2 m-auto h-[550px] shadow-lg shadow-gray-600 sm:max-w-[900px]">
         <div className="w-full h-[550px] hidden md:block">
           <img className="w-full h-full" src={loginImg} alt="/" />

@@ -96,7 +96,7 @@ const updateOverlays = async (data, id) => {
 
 const deleteOverlays = async (id) => {
   try {
-    const overlay = await Overlay.findByIdAndDelete({ id });
+    const overlay = await Overlay.findByIdAndDelete(id);
     if (!overlay) {
       throw {
         success: false,

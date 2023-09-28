@@ -3,12 +3,14 @@ import Overlay from "./Overlay";
 import { useSelector } from "react-redux";
 import { BASE_URL } from "../utils/helper";
 import axios from "axios";
+import toast from "react-hot-toast";
+import { SpinnerCircular } from "spinners-react";
 const Color = require("color");
+
 const VideoPlayer = ({ rtspUrl, socket }) => {
-  const [overlayLeft, setOverlayLeft] = useState(""); // State to store left position
-  const [overlayTop, setOverlayTop] = useState("");
   const [content, setContent] = useState("");
   const [editor, openEditor] = useState(false);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
   const [left, setLeft] = useState("");
   const [top, setTop] = useState("");
   const [color, setColor] = useState("");
@@ -32,10 +34,13 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
 
         setOverlays(data.data);
       } catch (error) {
-        console.log(error);
+        if (error.response.data.message === "Unauthorized access no token") {
+          toast.error("Please login again token expired");
+        }
       }
     };
     getOverlays();
+    // eslint-disable-next-line
   }, [data]);
 
   function colorNameToHex(colorNameInput) {
@@ -43,9 +48,7 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
       const colorHex = Color(colorNameInput.toLowerCase()).hex();
       return colorHex;
     } catch (error) {
-      console.log(error);
-      alert("Invalid color name");
-      return "Invalid color name";
+      return "Not_Valid";
     }
   }
   useEffect(() => {
@@ -56,71 +59,61 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
   const handleUpdate = async (e) => {
     try {
       e.preventDefault();
-
-      // Get the iframe's width and height
-      const iframeWidth = 640;
-      const iframeHeight = 300; // You can adjust this as needed
-
-      // Convert the input values to numbers (assuming they are strings)
       const newLeft = parseFloat(left);
       const newTop = parseFloat(top);
-
-      // Check if the new position is within the iframe boundaries
-      if (
-        !isNaN(newLeft) &&
-        !isNaN(newTop) &&
-        newLeft >= 0 &&
-        newLeft + 2 <= iframeWidth && // Assuming the overlay width is 32 (you can adjust this)
-        newTop >= 0 &&
-        newTop + 2 <= iframeHeight // Assuming the overlay height is 32 (you can adjust this)
-      ) {
-        const { data } = await axios.put(
-          `${BASE_URL}/api/overlay/${editor._id}`,
-          {
-            left: newLeft,
-            content,
-            top: newTop,
-            color: color ? colorNameToHex(color) : editor.color,
-            url: rtspUrl,
-          },
-          config
-        );
-        setColor("");
-        setContent("");
-        setLeft("");
-        setTop("");
-        socket.emit("send");
-      } else {
-        // Alert the user that the position is outside the boundaries
-        alert(
-          "Invalid position. Please make sure it's within the iframe boundaries."
+      const col = colorNameToHex(color);
+      if (color !== "" && col === "Not_Valid") {
+        return toast.error("Invalid color name");
+      }
+      if ((newLeft || newTop) && (newLeft > 70 || newTop > 240)) {
+        return toast.error(
+          "Invalid position. Please make sure left value is less then 70 and top value is less then 240px"
         );
       }
+
+      await axios.put(
+        `${BASE_URL}/api/overlay/${editor._id}`,
+        {
+          left: newLeft,
+          content,
+          top: newTop,
+          color: color ? col : editor.color,
+          url: rtspUrl,
+        },
+        config
+      );
+      setColor("");
+      setContent("");
+      setLeft("");
+      setTop("");
+      socket.emit("send");
     } catch (error) {
-      console.log(error);
+      if (error.response.data.message === "Unauthorized access no token") {
+        toast.error("Please login again token expired");
+      }
     }
   };
 
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
-
-      // Get the iframe's width
       const iframe = document.querySelector("iframe");
-      const iframeWidth = iframe.clientWidth; // Get the current width of the iframe
+      const iframeWidth = iframe.clientWidth;
 
-      // Calculate the default percentage values for left and top based on iframe width
       const defaultLeftPercentage = (25 / iframeWidth) * 100;
       const defaultTopPercentage = (25 / iframeWidth) * 100;
-
-      const { data } = await axios.post(
+      const col = colorNameToHex(color);
+      if (col === "Not_Valid") {
+        return toast.error("Invalid color name");
+      }
+      await axios.post(
         `${BASE_URL}/api/overlay`,
         {
           url: rtspUrl,
           content,
-          left: `${defaultLeftPercentage}%`, // Set left as a percentage
-          top: `${defaultTopPercentage}%`, // Set top as a percentage
-          color: colorNameToHex(color),
+          left: `${defaultLeftPercentage}`,
+          top: `${defaultTopPercentage}`,
+          color: col,
         },
         config
       );
@@ -128,16 +121,50 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
       setContent("");
       socket.emit("send");
     } catch (error) {
-      console.log(error);
+      if (error.response.data.message === "Unauthorized access no token") {
+        toast.error("Please login again token expired");
+      }
     }
   };
 
+  const handleDelete = async (e) => {
+    try {
+      e.preventDefault();
+      await axios.delete(`${BASE_URL}/api/overlay/${editor._id}`, config);
+      openEditor(false);
+      socket.emit("send");
+    } catch (error) {
+      if (error.message === "Unauthorized access no token") {
+        toast.error("Please login again token expired");
+      }
+    }
+  };
   return (
     <div className="relative">
-      <div className="md:w-[90%] md:h-[300px] w-11/12 h-[200px] mx-auto">
-        <iframe className="w-full h-full" src={rtspUrl} loading="lazy"></iframe>
+      <div className="md:w-[100%] md:h-[300px] w-[99%] h-[300px] mx-auto">
+        {/* {!isIframeLoaded ? (
+          <SpinnerCircular
+            size="90"
+            className="w-full flex items-center xl:h-80  md:h-64 h-28 lg:h-72 flex-col  mx-auto"
+            thickness="100"
+            speed="600"
+            color="white"
+            secondaryColor="black"
+          />
+        ) : ( */}
+        <iframe
+          title="live streaming"
+          className="w-full h-full"
+          src={rtspUrl}
+          loading="lazy"
+          onLoad={() => setIsIframeLoaded(true)}
+          onAbort={() => setIsIframeLoaded(false)}
+        ></iframe>
+        {/* )} */}
       </div>
-      <Overlay overlays={overlays} openEditor={openEditor} editor={editor} />
+      {isIframeLoaded && (
+        <Overlay overlays={overlays} openEditor={openEditor} editor={editor} />
+      )}
       <div className="flex justify-center">
         {!editor ? (
           <form
@@ -152,6 +179,7 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
                 type="text"
                 onChange={(e) => setContent(e.target.value)}
                 value={content}
+                required
               />
               <input
                 className="border p-1 rounded-md w-fit"
@@ -159,8 +187,10 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
                 type="text"
                 onChange={(e) => setColor(e.target.value)}
                 value={color}
+                required
               />
             </div>
+
             <input
               className="flex justify-start cursor-pointer border bg-white text-black rounded-md p-1 "
               type="submit"
@@ -173,12 +203,18 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
             className=" flex flex-col justify-center items-center space-y-2 mt-3 p-2 bg-gradient-to-r w-[240px] md:w-[500px] from-indigo-500 via-purple-500 to-pink-500"
           >
             <div className="grid text-white grid-flow-col col-span-3 w-full">
-              <h1></h1>
+              <h1>{}</h1>
               <h1 className="text-center">{editor?.content}</h1>
-              <i
-                onClick={() => openEditor(false)}
-                className="flex cursor-pointer fa-xl items-center text-center justify-end fa-solid fa-xmark w-full"
-              ></i>
+              <div className="flex items-center">
+                <i
+                  onClick={handleDelete}
+                  className="flex cursor-pointer fa-xl items-center text-center justify-end fa-solid fa-trash w-full"
+                ></i>
+                <i
+                  onClick={() => openEditor(false)}
+                  className="fa-solid fa-2xl ml-2 fa-xmark"
+                ></i>
+              </div>
             </div>
 
             <div className="flex flex-col md:justify-around items-center w-full space-y-2 md:space-y-2">
@@ -216,19 +252,17 @@ const VideoPlayer = ({ rtspUrl, socket }) => {
                   </h1>
                   <input
                     className="border p-1 rounded-md md:w-fit"
-                    placeholder={`${overlayLeft}`}
+                    placeholder={`${editor.left}`}
                     type="text"
                     onChange={(e) => setLeft(e.target.value)}
                     value={left}
                   />
                 </div>
                 <div>
-                  <h1 className="flex justify-center text-white my-1">
-                    Right %
-                  </h1>
+                  <h1 className="flex justify-center text-white my-1">Top %</h1>
                   <input
                     className="border p-1 rounded-md md:w-fit"
-                    placeholder={`${overlayTop}`}
+                    placeholder={`${editor.top}`}
                     type="text"
                     onChange={(e) => setTop(e.target.value)}
                     value={top}

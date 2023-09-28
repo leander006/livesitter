@@ -5,9 +5,9 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./Page/Home";
 import Login from "./Page/Login";
 import Signin from "./Page/Signin";
-import Setting from "./Page/Setting";
 import { BASE_URL } from "./utils/helper";
 import { useSelector } from "react-redux";
+import Live from "./Page/Live";
 const Endpoint = `${BASE_URL}/`;
 
 function App() {
@@ -20,8 +20,8 @@ function App() {
         element={currentUser ? <Home socket={socket} /> : <Login />}
       />
       <Route path="/login" element={<Login />} />
+      <Route path="/live" element={<Live socket={socket} />} />
       <Route path="/sign" element={<Signin />} />
-      <Route path="/setting" element={currentUser ? <Setting /> : <Login />} />
     </Routes>
   );
 }
