@@ -87,6 +87,16 @@ function Navbar() {
                   </Link>
                 </li>
               ))}
+              <li
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(logout);
+                  navigate("/login");
+                }}
+                className="font-medium capitalize cursor-pointer hover:scale-125 duration-300"
+              >
+                Logout
+              </li>
             </div>
           </ul>
         </div>
